@@ -16,10 +16,16 @@
  * @since     1.0
  */
 
-require_once __DIR__ . '/inc/admin-page.php';
-require_once __DIR__ . '/inc/Data.php';
-require_once __DIR__ . '/inc/Log.php';
-require_once __DIR__ . '/inc/Cloverly.php';
+require_once __DIR__ . '/inc/Plugin.php';
 
-new \Carbon_Offset\Log();
-new \Carbon_Offset\Cloverly();
+/**
+ * Init the plugin.
+ *
+ * @since 1.0.0
+ * @return void
+ */
+function carbon_offset() {
+	$carbon_offset = new \CarbonOffset\Plugin();
+	$carbon_offset->init();
+}
+carbon_offset();

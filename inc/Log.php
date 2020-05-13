@@ -1,15 +1,73 @@
 <?php
+/**
+ * Data logging.
+ *
+ * @package CarbonOffset
+ * @since 1.0.0
+ */
 
+namespace CarbonOffset;
+
+/**
+ * Data logging.
+ *
+ * @since 1.0.0
+ */
 class Log {
-	private $data;
-	public function __construct() {
-		$this->data = new Data();
-		add_action( 'wp_footer', 'log_visit' );
+
+	/**
+	 * The saved data.
+	 *
+	 * @access protected
+	 * @since 1.0.0
+	 * @var array
+	 */
+	protected $data;
+
+	/**
+	 * The the logger's processes.
+	 *
+	 * @access public
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function run() {
+
+		// Add the footer script.
+		$footer_script = new FooterScript();
+		$footer_script->run();
+
+		// Log a visit.
+		add_action( 'wp_footer', [ $this, 'maybe_log_visit' ], 999999 );
 	}
-	public function log_visit() {
-		$this->data->set_visits_count( $this->data->get_visits_count() + 1 );
+
+	/**
+	 * Check if this request is a logging request.
+	 *
+	 * @access public
+	 * @since 1.0.0
+	 * @return bool
+	 */
+	public function is_log_request() {
+		return ( isset( $_GET['action'] ) && 'carbonOffset' === $_GET['action'] ); // phpcs:ignore WordPress.Security.NonceVerification
 	}
-	public function delete_visits_count() {
-		$this->data->set_visits_count( 0 );
+
+	/**
+	 * Log a visit.
+	 *
+	 * @access public
+	 * @since 1.0
+	 * @return void
+	 */
+	public function maybe_log_visit() {
+
+		if ( ! $this->is_log_request() ) {
+			return;
+		}
+
+		$data = new Data();
+
+		// TODO: These will vary depending on our options.
+		$data->add( 1, 1.67 );
 	}
 }
