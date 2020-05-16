@@ -14,7 +14,7 @@ namespace CarbonOffset;
  *
  * @since 1.0.0
  */
-class PaymentAPI {
+abstract class PaymentAPI {
 
 	/**
 	 * The grams threshold for payments.
@@ -46,6 +46,51 @@ class PaymentAPI {
 	}
 
 	/**
+	 * Check if we have automatic payments enabled.
+	 *
+	 * @access public
+	 * @since 1.0.0
+	 * @return bool
+	 */
+	public function is_automatic_payment_enabled() {
+		// TODO: We'll have a checkbox/switch in our options to enable/disable automatic payments.
+		return false;
+	}
+
+	/**
+	 * Should we make an automatic payment?
+	 *
+	 * @access public
+	 * @since 1.0.0
+	 * @return bool
+	 */
+	public function maybe_make_automatic_payment() {
+		if ( ! $this->is_automatic_payment_enabled() ) {
+			return false;
+		}
+
+		if ( ! $this->data ) {
+			$this->init();
+		}
+		$value = $this->data->get();
+
+		return ( $this->pay_threshold < $value['carbon_pending'] );
+	}
+
+	/**
+	 * Did we trigger a manual payment?
+	 *
+	 * @access public
+	 * @since 1.0.0
+	 * @return bool
+	 */
+	public function is_manual_payment() {
+
+		// TODO.
+		return false;
+	}
+
+	/**
 	 * Check if we need to make a payment, and call the pay() method if needed.
 	 *
 	 * @access public
@@ -54,96 +99,66 @@ class PaymentAPI {
 	 */
 	public function maybe_pay() {
 
-		$previous_month = [
-			'yeah'  => gmdate( 'Y', strtotime( 'first day of last month' ) ),
-			'month' => gmdate( 'm', strtotime( 'first day of last month' ) ),
-		];
-
-		// Get data for previous month.
-		$previous_month_data = $this->data->get_data( $previous_month );
-
-		if ( $this->pay_threshold < $previous_month_data['carbon'] ) {
-			$this->mark_done( $previous_month );
-			return $this->pay();
-		} elseif ( 0 < $previous_month_data['carbon'] ) {
-			$this->mark_pending( $previous_month );
-			return false;
-		}
+		return ( $this->maybe_make_automatic_payment() || $this->is_manual_payment() );
 	}
 
 	/**
-	 * Mark a month as paid.
-	 *
-	 * @access public
-	 * @since 1.0
-	 * @param array $args The arguments.
-	 * @return void
-	 */
-	protected function mark_done( $args ) {
-		$data = get_option( $this->payments_option, [] );
-
-		if ( ! isset( $data[ $args['year'] ] ) ) {
-			$data[ $args['year'] ] = [];
-		}
-
-		if ( ! isset( $data[ $args['year'] ][ $args['month'] ] ) ) {
-			$data[ $args['year'] ][ $args['month'] ] = true;
-		}
-
-		update_option( $this->payments_option, $data );
-	}
-
-	/**
-	 * Mark a month as pending.
+	 * Mark an amount as offset.
 	 *
 	 * @access protected
-	 * @since 1.0
-	 * @param array $args The arguments.
-	 * @return void
-	 */
-	protected function mark_pending( $args ) {
-		$data = get_option( $this->payments_option, [] );
-
-		if ( ! isset( $data[ $args['year'] ] ) ) {
-			$data[ $args['year'] ] = [];
-		}
-
-		if ( ! isset( $data[ $args['year'] ][ $args['month'] ] ) ) {
-			$data[ $args['year'] ][ $args['month'] ] = false;
-		}
-
-		update_option( $this->payments_option, $data );
-	}
-
-	/**
-	 * Get the weight we need to offset for all pending months.
-	 *
-	 * @access public
 	 * @since 1.0.0
-	 * @return float
+	 * @param float $weight The carbon weight we want to offset.
+	 * @return bool
 	 */
-	public function get_pending_weight() {
-		$pending_months =
+	protected function offset_weight( $weight ) {
+		if ( ! $this->data ) {
+			$this->init();
+		}
+		$value = $this->data->get();
+
+		$value['carbon_pending'] -= $weight;
+		$value['carbon_offset']  += $weight;
+
+		return $this->data->save( $value );
 	}
 
 	/**
-	 * Get pending months.
+	 * The weight we want to offset by making a payment.
 	 *
-	 * @access public
-	 * @since 1.0
-	 *
-	 * @return array
+	 * @access protected
+	 * @since 1.0.0
+	 * @param float $weight The carbon weight we want to pay for.
+	 * @return bool|string Return whether the payment was successful or not.
+	 *                     If there was an error, return the error message.
 	 */
-	public function get_pending_months() {
-		$data   = get_option( $this->payments_option, [] );
-		$result = [];
-		foreach ( $data as $year => $months ) {
-			foreach ( $months as $month ) {
-				if ( ! $month ) {
-					$result[] = [ $year, $month ];
-				}
-			}
+	protected function pay( $weight ) {
+
+		$transaction = $this->the_transaction( $weight );
+		if ( $transaction ) {
+			$this->offset_weight( $weight );
+			return true;
 		}
-		return $result;
+		return $this->get_error_message();
 	}
+
+	/**
+	 * Make the transaction.
+	 *
+	 * @abstract
+	 * @access protected
+	 * @since 1.0.0
+	 * @param float $weight The carbon weight we want to offset.
+	 * @return bool
+	 */
+	abstract protected function the_transaction( $weight );
+
+	/**
+	 * Get the error message.
+	 *
+	 * @abstract
+	 * @access protected
+	 * @since 1.0.0
+	 * @return bool
+	 */
+	abstract protected function get_error_message();
 }

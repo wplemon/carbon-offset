@@ -39,7 +39,8 @@ class Plugin {
 	public function include_files() {
 		require_once 'Data.php';
 		require_once 'Log.php';
-		// require_once 'Cloverly.php';
+		require_once 'PaymentAPI.php';
+		require_once 'PaymentAPICloverly.php';
 		require_once 'AdminPage.php';
 		require_once 'FooterScript.php';
 	}

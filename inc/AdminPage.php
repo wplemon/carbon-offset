@@ -56,7 +56,7 @@ class AdminPage {
 	 */
 	public function page() {
 		$data        = new Data();
-		$carbon_data = $data->get_option();
+		$carbon_data = $data->get();
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Carbon Offset', 'carbon-offset' ); ?></h1>
@@ -87,8 +87,8 @@ class AdminPage {
 								</thead>
 								<tbody>
 									<tr>
-										<td style="font-size:4em;font-weight:200;text-align:center;"><?php echo (int) $carbon_data['balance']['pending']['visits']; ?></td>
-										<td style="font-size:4em;font-weight:200;text-align:center;"><?php echo (float) $carbon_data['balance']['pending']['carbon']; ?></td>
+										<td style="font-size:4em;font-weight:200;text-align:center;"><?php echo (int) $carbon_data['visits']; ?></td>
+										<td style="font-size:4em;font-weight:200;text-align:center;"><?php echo (float) $carbon_data['carbon_pending']; ?></td>
 									</tr>
 								</tbody>
 							</table>
@@ -96,19 +96,8 @@ class AdminPage {
 						</div>
 
 						<div class="carbon-offset-complete" style="padding:2em;background:#fff;">
-							<h2 style="line-height:3;"><?php esc_html_e( 'Complete', 'carbon-offset' ); ?></h2>
-							<table class="widefat">
-								<thead>
-									<th style="font-weight:600;text-align:center;"><?php esc_html_e( 'Visits', 'carbon-offset' ); ?></th>
-									<th style="font-weight:600;text-align:center;"><?php esc_html_e( 'Carbon', 'carbon-offset' ); ?></th>
-								</thead>
-								<tbody>
-									<tr>
-										<td style="font-size:4em;font-weight:200;text-align:center;"><?php echo (int) $carbon_data['balance']['offset']['visits']; ?></td>
-										<td style="font-size:4em;font-weight:200;text-align:center;"><?php echo (float) $carbon_data['balance']['offset']['carbon']; ?></td>
-									</tr>
-								</tbody>
-							</table>
+							<h2 style="line-height:3;"><?php esc_html_e( 'Carbon Footprint already offset', 'carbon-offset' ); ?></h2>
+							<p style="font-size:6em;font-weight:200;text-align:center;"><?php echo (float) $carbon_data['carbon_offset']; ?></p>
 							<p>TODO: Add motivational text here and congratulations if they've already offset some of their carbon footprint.</p>
 						</div>
 					</div>
