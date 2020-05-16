@@ -35,7 +35,7 @@ abstract class PaymentAPI {
 	private $data;
 
 	/**
-	 * Object constructor.
+	 * Init.
 	 *
 	 * @access public
 	 * @since 1.0.0

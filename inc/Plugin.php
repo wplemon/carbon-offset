@@ -61,5 +61,8 @@ class Plugin {
 		// Log frontend visits.
 		$log = new Log();
 		$log->run();
+
+		$cloverly = new PaymentAPICloverly();
+		$cloverly->init();
 	}
 }
