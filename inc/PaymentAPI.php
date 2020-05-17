@@ -32,7 +32,7 @@ abstract class PaymentAPI {
 	 * @since 1.0.0
 	 * @var \CarbonOffset\Data
 	 */
-	private $data;
+	protected $data;
 
 	/**
 	 * Init.
@@ -75,6 +75,21 @@ abstract class PaymentAPI {
 		$value = $this->data->get();
 
 		return ( $this->pay_threshold < $value['carbon_pending'] );
+	}
+
+	/**
+	 * Get pending weight.
+	 *
+	 * @access public
+	 * @since 1.0.0
+	 * @return float
+	 */
+	public function get_pending_weight() {
+		if ( ! $this->data ) {
+			$this->init();
+		}
+		$value = $this->data->get();
+		return (float) $value['carbon_pending'];
 	}
 
 	/**

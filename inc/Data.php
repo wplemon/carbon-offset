@@ -34,7 +34,6 @@ class Data {
 		$value = (array) get_option(
 			$this->option_name,
 			[
-				'visits'         => 0,
 				'carbon_pending' => 0,
 				'carbon_offset'  => 0,
 			]
@@ -47,17 +46,15 @@ class Data {
 	 *
 	 * @access public
 	 * @since 1.0.0
-	 * @param int   $visits The number of visits to log.
 	 * @param float $carbon The grams of carbon-footprint to log.
 	 * @return void
 	 */
-	public function add( $visits = 1, $carbon = 1 ) {
+	public function add( $carbon = 1 ) {
 		static $added;
 
 		if ( ! $added ) {
 			$saved = $this->get();
 
-			$saved['visits']         += $visits;
 			$saved['carbon_pending'] += $carbon;
 
 			$this->save( $saved );
