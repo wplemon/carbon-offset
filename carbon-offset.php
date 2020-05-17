@@ -16,6 +16,8 @@
  * @since     1.0.0
  */
 
+define( 'CARBON_OFFSET_PLUGIN_FILE', __FILE__ );
+
 require_once __DIR__ . '/inc/Plugin.php';
 
 /**

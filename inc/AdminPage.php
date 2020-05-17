@@ -41,6 +41,7 @@ class AdminPage {
 		add_action( 'admin_menu', [ $this, 'add_menu_page' ] );
 		add_action( 'carbon_offset_admin_tab_contents', [ $this, 'details_tab' ] );
 		add_action( 'carbon_offset_admin_tab_contents', [ $this, 'settings_tab' ] );
+		add_action( 'carbon_offset_admin_tab_contents', [ $this, 'sponsors_details' ], 999 );
 		add_action( 'carbon_offset_settings_page_fields', [ $this, 'settings_fields' ], 5 );
 		add_action( 'admin_init', [ $this, 'save_settings' ] );
 	}
@@ -288,6 +289,68 @@ class AdminPage {
 			value="<?php echo esc_attr( $footprint ); ?>"
 		>
 		<hr style="margin:2em 0;">
+		<?php
+	}
+
+	/**
+	 * Add sponsors details.
+	 *
+	 * @access public
+	 * @since 1.0.0
+	 * @param string $tab The admin-page tab.
+	 * @return void
+	 */
+	public function sponsors_details( $tab ) {
+		if ( 'details' !== $tab ) {
+			return;
+		}
+
+		$sponsors = [
+			[
+				'name' => 'WPLemon',
+				'url'  => 'https://wplemon.com',
+				'img'  => plugin_dir_url( CARBON_OFFSET_PLUGIN_FILE ) . 'assets/sponsors/wplemon.png',
+			],
+		];
+		?>
+		<div id="carbon-offset-sponsors">
+			<hr style="margin: 5em 0;">
+			<p><?php esc_html_e( 'This plugin was made possible with the support of the following people & companies', 'carbon-offset' ); ?></p>
+			<div id="carbon-offset-sponsors-logos">
+				<?php foreach ( $sponsors as $sponsor ) : ?>
+					<a href="<?php esc_url( $sponsor['url'] ); ?>" target="_blank" rel="nofollow">
+						<img src="<?php echo esc_url( $sponsor['img'] ); ?>" style="width:auto;height:auto;max-width:100px;max-height:50px;">
+					</a>
+				<?php endforeach; ?>
+			</div>
+			<p>
+				<?php
+				printf(
+					/* Translators: "Become a sponsor" link. */
+					esc_html__( 'Show your support and help us continue development of this plugin, %s.', 'carbon-offset' ),
+					'<a href="https://github.com/sponsors/aristath" target="_blank" rel="nofollow">' . esc_html__( 'become a sponsor', 'carbon-offset' ) . '</a>'
+				);
+				?>
+			</p>
+		</div>
+		<style>
+			#carbon-offset-sponsors {
+				opacity: 0.2;
+				transition: opacity 0.2s;
+				text-align: center;
+				margin-top: 4em;
+			}
+
+			#carbon-offset-sponsors:hover,
+			#carbon-offset-sponsors:focus-within {
+				opacity: 1;
+			}
+		</style>
+
+		<script>
+			// WIP.
+			var query = 'query($cursor:String){user(login:"aristath"){sponsorshipsAsMaintainer(first:100 after:$cursor){pageInfo {startCursor endCursor hasNextPage } edges { node { sponsor { avatarUrl login name }}}}}}';
+		</script>
 		<?php
 	}
 }
