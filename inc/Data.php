@@ -18,7 +18,9 @@ class Data {
 	 * The name we'll be using for the DB option.
 	 *
 	 * @access private
+	 *
 	 * @since 1.0.0
+	 *
 	 * @var string
 	 */
 	private $option_name = 'carbon_offset';
@@ -27,7 +29,9 @@ class Data {
 	 * Get the option.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @return array
 	 */
 	public function get() {
@@ -45,8 +49,11 @@ class Data {
 	 * Add to the log
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @param float $carbon The grams of carbon-footprint to log.
+	 *
 	 * @return void
 	 */
 	public function add( $carbon = 1 ) {
@@ -66,8 +73,11 @@ class Data {
 	 * Save a new option value.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @param array $value The value we want to save.
+	 *
 	 * @return void
 	 */
 	public function save( $value ) {

@@ -3,6 +3,7 @@
  * Adds the footer script for the data logger.
  *
  * @package CarbonOffset
+ *
  * @since 1.0.0
  */
 
@@ -19,7 +20,9 @@ class FooterScript {
 	 * Run.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @return void
 	 */
 	public function run() {
@@ -30,7 +33,9 @@ class FooterScript {
 	 * Print the script.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @return void
 	 */
 	public function print_script() {

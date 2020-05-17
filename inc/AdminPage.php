@@ -19,7 +19,9 @@ class AdminPage {
 	 * The saved data.
 	 *
 	 * @access protected
+	 *
 	 * @since 1.0.0
+	 *
 	 * @var array
 	 */
 	protected $data;
@@ -28,6 +30,7 @@ class AdminPage {
 	 * Init the admin page.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
 	 *
 	 * @return void
@@ -46,6 +49,7 @@ class AdminPage {
 	 * Add the admin page.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
 	 *
 	 * @return void
@@ -65,6 +69,7 @@ class AdminPage {
 	 * The admin-page contents.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
 	 *
 	 * @return void
@@ -116,8 +121,11 @@ class AdminPage {
 	 * Print the details tab.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @param string $current_tab The current tab.
+	 *
 	 * @return void
 	 */
 	public function details_tab( $current_tab ) {
@@ -131,14 +139,19 @@ class AdminPage {
 			<div class="inside">
 				<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(50em, 1fr));grid-gap:1px;background:#aaa;">
 					<div class="carbon-offset-pending" style="padding:2em;background:#fff;">
-						<h2 style="line-height:3;"><?php esc_html_e( 'Pending', 'carbon-offset' ); ?></h2>
+						<h2 style="line-height:3;text-align:center;"><?php esc_html_e( 'Pending Carbon Footprint', 'carbon-offset' ); ?></h2>
+						<p class="description"><?php esc_html_e( 'Each visit and transaction on your website generates carbon emissions. In this section you can see the impact these have, and offset your site\'s emissions to the planet.', 'carbon-offset' ); ?></p>
 						<p style="font-size:4em;font-weight:200;text-align:center;"><?php echo (float) round( $carbon_data['carbon_pending'] ) / 1000; ?>kg</p>
 						<?php do_action( 'carbon_offset_admin_page_pending_inside' ); ?>
 					</div>
 					<div class="carbon-offset-complete" style="padding:2em;background:#fff;">
-						<h2 style="line-height:3;"><?php esc_html_e( 'Carbon Footprint already offset', 'carbon-offset' ); ?></h2>
+						<h2 style="line-height:3;text-align:center;"><?php esc_html_e( 'Carbon Footprint already offset', 'carbon-offset' ); ?></h2>
+						<?php if ( 0 < $carbon_data['carbon_offset'] ) : ?>
+							<p class="description"><?php esc_html_e( 'In this section you can see the carbon you have already offset. Future purchases will add up to this number.', 'carbon-offset' ); ?></p>
+						<?php else : ?>
+							<p class="description"><?php esc_html_e( 'Once you purchase a carbon offset, the weight of that carbon will be shown here.', 'carbon-offset' ); ?></p>
+						<?php endif; ?>
 						<p style="font-size:4em;font-weight:200;text-align:center;"><?php echo (float) round( $carbon_data['carbon_offset'] ) / 1000; ?>kg</p>
-						<p>TODO: Add motivational text here and congratulations if they've already offset some of their carbon footprint.</p>
 					</div>
 				</div>
 			</div>
@@ -150,8 +163,11 @@ class AdminPage {
 	 * Print the settings tab.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @param string $current_tab The current tab.
+	 *
 	 * @return void
 	 */
 	public function settings_tab( $current_tab ) {
@@ -197,7 +213,9 @@ class AdminPage {
 	 * Save settings.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @return void
 	 */
 	public function save_settings() {
@@ -239,8 +257,11 @@ class AdminPage {
 	 * Add generic settings.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @param array $values An array of saved values.
+	 *
 	 * @return void
 	 */
 	public function settings_fields( $values ) {
@@ -260,7 +281,7 @@ class AdminPage {
 			name="footprint"
 			type="number"
 			min="0"
-			max="100"
+			max="10000"
 			step="0.001"
 			aria-label="footprint-label"
 			aria-describedby="footprint-description"

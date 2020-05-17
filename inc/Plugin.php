@@ -3,6 +3,7 @@
  * The main plugin class.
  *
  * @package CarbonOffset
+ *
  * @since 1.0.0
  */
 
@@ -19,6 +20,7 @@ class Plugin {
 	 * Init the plugin.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
 	 *
 	 * @return void
@@ -32,6 +34,7 @@ class Plugin {
 	 * Include required files.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
 	 *
 	 * @return void
@@ -49,7 +52,9 @@ class Plugin {
 	 * Instantiates the class objects.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @return void
 	 */
 	public function run() {

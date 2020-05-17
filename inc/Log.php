@@ -3,6 +3,7 @@
  * Data logging.
  *
  * @package CarbonOffset
+ *
  * @since 1.0.0
  */
 
@@ -19,7 +20,9 @@ class Log {
 	 * The saved data.
 	 *
 	 * @access protected
+	 *
 	 * @since 1.0.0
+	 *
 	 * @var array
 	 */
 	protected $data;
@@ -28,7 +31,9 @@ class Log {
 	 * The the logger's processes.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @return void
 	 */
 	public function run() {
@@ -45,7 +50,9 @@ class Log {
 	 * Check if this request is a logging request.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @return bool
 	 */
 	public function is_log_request() {
@@ -56,7 +63,9 @@ class Log {
 	 * Log a visit.
 	 *
 	 * @access public
-	 * @since 1.0
+	 *
+	 * @since 1.0.0
+	 *
 	 * @return void
 	 */
 	public function maybe_log_visit() {
@@ -65,9 +74,11 @@ class Log {
 			return;
 		}
 
-		$data = new Data();
+		$data    = new Data();
+		$options = get_option( 'carbon_offset_settings', [] );
 
-		// TODO: These will vary depending on our options.
-		$data->add( 1, 1.67 );
+		if ( isset( $options['footprint'] ) ) {
+			$data->add( (float) $options['footprint'] );
+		}
 	}
 }

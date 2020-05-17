@@ -20,7 +20,9 @@ abstract class PaymentAPI {
 	 * The grams threshold for payments.
 	 *
 	 * @access protected
+	 *
 	 * @since 1.0.0
+	 *
 	 * @var int
 	 */
 	private $pay_threshold = 1000;
@@ -29,7 +31,9 @@ abstract class PaymentAPI {
 	 * The Data object.
 	 *
 	 * @access protected
+	 *
 	 * @since 1.0.0
+	 *
 	 * @var \CarbonOffset\Data
 	 */
 	protected $data;
@@ -38,7 +42,9 @@ abstract class PaymentAPI {
 	 * Init.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @return void
 	 */
 	public function init() {
@@ -49,7 +55,9 @@ abstract class PaymentAPI {
 	 * Check if we have automatic payments enabled.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @return bool
 	 */
 	public function is_automatic_payment_enabled() {
@@ -61,7 +69,9 @@ abstract class PaymentAPI {
 	 * Should we make an automatic payment?
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @return bool
 	 */
 	public function maybe_make_automatic_payment() {
@@ -81,7 +91,9 @@ abstract class PaymentAPI {
 	 * Get pending weight.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @return float
 	 */
 	public function get_pending_weight() {
@@ -96,20 +108,23 @@ abstract class PaymentAPI {
 	 * Did we trigger a manual payment?
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @return bool
 	 */
 	public function is_manual_payment() {
-
-		// TODO.
-		return false;
+		// TODO: This will changhe once we have the option to automate payments.
+		return true;
 	}
 
 	/**
 	 * Check if we need to make a payment, and call the pay() method if needed.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @return mixed Returns the result of the pay() method if a payment was made.
 	 */
 	public function maybe_pay() {
@@ -121,8 +136,11 @@ abstract class PaymentAPI {
 	 * Mark an amount as offset.
 	 *
 	 * @access protected
+	 *
 	 * @since 1.0.0
+	 *
 	 * @param float $weight The carbon weight we want to offset.
+	 *
 	 * @return bool
 	 */
 	protected function offset_weight( $weight ) {
@@ -141,8 +159,11 @@ abstract class PaymentAPI {
 	 * The weight we want to offset by making a payment.
 	 *
 	 * @access protected
+	 *
 	 * @since 1.0.0
+	 *
 	 * @param float $weight The carbon weight we want to pay for.
+	 *
 	 * @return bool|string Return whether the payment was successful or not.
 	 *                     If there was an error, return the error message.
 	 */
@@ -160,9 +181,13 @@ abstract class PaymentAPI {
 	 * Make the transaction.
 	 *
 	 * @abstract
+	 *
 	 * @access protected
+	 *
 	 * @since 1.0.0
+	 *
 	 * @param float $weight The carbon weight we want to offset.
+	 *
 	 * @return bool
 	 */
 	abstract protected function the_transaction( $weight );
@@ -171,8 +196,11 @@ abstract class PaymentAPI {
 	 * Get the error message.
 	 *
 	 * @abstract
+	 *
 	 * @access protected
+	 *
 	 * @since 1.0.0
+	 *
 	 * @return bool
 	 */
 	abstract protected function get_error_message();

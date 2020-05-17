@@ -18,7 +18,9 @@ class PaymentAPICloverly extends PaymentAPI {
 	 * Public key for the Cloverly API.
 	 *
 	 * @access private
+	 *
 	 * @since 1.0.0
+	 *
 	 * @var string
 	 */
 	private $public_key;
@@ -27,7 +29,9 @@ class PaymentAPICloverly extends PaymentAPI {
 	 * API response.
 	 *
 	 * @access private
+	 *
 	 * @since 1.0.0
+	 *
 	 * @var mixed
 	 */
 	private $response;
@@ -36,7 +40,9 @@ class PaymentAPICloverly extends PaymentAPI {
 	 * Init.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @return void
 	 */
 	public function init() {
@@ -51,7 +57,9 @@ class PaymentAPICloverly extends PaymentAPI {
 	 * Set the public key in the object.
 	 *
 	 * @access protected
+	 *
 	 * @since 1.0.0
+	 *
 	 * @return void
 	 */
 	public function set_public_key() {
@@ -67,8 +75,11 @@ class PaymentAPICloverly extends PaymentAPI {
 	 * Handle payments.
 	 *
 	 * @access protected
+	 *
 	 * @since 1.0.0
+	 *
 	 * @param float $weight The carbon weight we want to offset.
+	 *
 	 * @return mixed Returns the response from Cloverly's API.
 	 */
 	protected function the_transaction( $weight ) {
@@ -108,8 +119,11 @@ class PaymentAPICloverly extends PaymentAPI {
 	 * Retrieve the purchase response as HTML to inject on the page.
 	 *
 	 * @access private
+	 *
 	 * @since 1.0.0
+	 *
 	 * @param float $weight The weight we want to offset in grams.
+	 *
 	 * @return string
 	 */
 	private function the_transaction_html( $weight ) {
@@ -153,7 +167,9 @@ class PaymentAPICloverly extends PaymentAPI {
 	 * Get the error message.
 	 *
 	 * @access protected
+	 *
 	 * @since 1.0.0
+	 *
 	 * @return bool
 	 */
 	protected function get_error_message() {
@@ -165,8 +181,11 @@ class PaymentAPICloverly extends PaymentAPI {
 	 * Estimate the cost.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @param float $weight The carbon weight in grams.
+	 *
 	 * @return array Details about the transaction.
 	 */
 	public function get_estimation( $weight ) {
@@ -222,7 +241,9 @@ class PaymentAPICloverly extends PaymentAPI {
 	 * Perform the AJAX actions.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @return void
 	 */
 	public function ajax_action() {
@@ -279,7 +300,9 @@ class PaymentAPICloverly extends PaymentAPI {
 	 * Print the script.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @return void
 	 */
 	public function the_script() {
@@ -311,7 +334,9 @@ class PaymentAPICloverly extends PaymentAPI {
 	 * Adds the admin-page tab contents on the details tab.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @return void
 	 */
 	public function admin_page_pending_inside() {
@@ -347,8 +372,11 @@ class PaymentAPICloverly extends PaymentAPI {
 	 * Add generic settings.
 	 *
 	 * @access public
+	 *
 	 * @since 1.0.0
+	 *
 	 * @param array $values An array of saved values.
+	 *
 	 * @return void
 	 */
 	public function settings_fields( $values ) {
