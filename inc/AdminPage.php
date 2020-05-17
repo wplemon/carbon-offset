@@ -37,6 +37,9 @@ class AdminPage {
 
 		add_action( 'admin_menu', [ $this, 'add_menu_page' ] );
 		add_action( 'carbon_offset_admin_tab_contents', [ $this, 'details_tab' ] );
+		add_action( 'carbon_offset_admin_tab_contents', [ $this, 'settings_tab' ] );
+		add_action( 'carbon_offset_settings_page_fields', [ $this, 'settings_fields' ], 5 );
+		add_action( 'admin_init', [ $this, 'save_settings' ] );
 	}
 
 	/**
@@ -105,14 +108,6 @@ class AdminPage {
 				<div style="height: 2em"></div>
 			<?php endif; ?>
 			<?php do_action( 'carbon_offset_admin_tab_contents', $current_tab ); ?>
-			<?php
-			/**
-			 * Add extra data after the postbox.
-			 *
-			 * @since 1.0.0
-			 */
-			do_action( 'carbon_offset_adminpage_end' );
-			?>
 		</div>
 		<?php
 	}
@@ -137,17 +132,141 @@ class AdminPage {
 				<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(50em, 1fr));grid-gap:1px;background:#aaa;">
 					<div class="carbon-offset-pending" style="padding:2em;background:#fff;">
 						<h2 style="line-height:3;"><?php esc_html_e( 'Pending', 'carbon-offset' ); ?></h2>
-						<p style="font-size:4em;font-weight:200;text-align:center;"><?php echo (float) $carbon_data['carbon_pending'] / 1000; ?>kg</p>
-						<p>TODO: We need a text input here where users can select the number they want to offset. Default value for the field should be the pending grams. We also need a submit button so they can make the payment.</p>
+						<p style="font-size:4em;font-weight:200;text-align:center;"><?php echo (float) round( $carbon_data['carbon_pending'] ) / 1000; ?>kg</p>
+						<?php do_action( 'carbon_offset_admin_page_pending_inside' ); ?>
 					</div>
 					<div class="carbon-offset-complete" style="padding:2em;background:#fff;">
 						<h2 style="line-height:3;"><?php esc_html_e( 'Carbon Footprint already offset', 'carbon-offset' ); ?></h2>
-						<p style="font-size:4em;font-weight:200;text-align:center;"><?php echo (float) $carbon_data['carbon_offset']; ?></p>
+						<p style="font-size:4em;font-weight:200;text-align:center;"><?php echo (float) round( $carbon_data['carbon_offset'] ) / 1000; ?>kg</p>
 						<p>TODO: Add motivational text here and congratulations if they've already offset some of their carbon footprint.</p>
 					</div>
 				</div>
 			</div>
 		</div>
+		<?php
+	}
+
+	/**
+	 * Print the settings tab.
+	 *
+	 * @access public
+	 * @since 1.0.0
+	 * @param string $current_tab The current tab.
+	 * @return void
+	 */
+	public function settings_tab( $current_tab ) {
+		if ( 'settings' !== $current_tab ) {
+			return;
+		}
+		?>
+		<form method="post">
+			<?php
+			$values = get_option( 'carbon_offset_settings', [] );
+			/**
+			 * Add settings from hooks.
+			 *
+			 * @since 1.0.0
+			 * @param array
+			 */
+			do_action( 'carbon_offset_settings_page_fields', $values );
+
+			/**
+			 * Add nonce field.
+			 */
+			wp_nonce_field( 'carbon-offset-settings' );
+			?>
+
+			<?php
+			/**
+			 * Add hidden input to denote the page - sanity check for save method.
+			 */
+			?>
+			<input type="hidden" name="carbon-offset-settings" value="save">
+
+			<?php
+			/**
+			 * The submit button.
+			 */
+			?>
+			<p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="<?php esc_html_e( 'Update Settings', 'carbon-offset' ); ?>"></p>
+		<form>
+		<?php
+	}
+
+	/**
+	 * Save settings.
+	 *
+	 * @access public
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function save_settings() {
+
+		// Sanity check.
+		if ( ! isset( $_POST['carbon-offset-settings'] ) || 'save' !== $_POST['carbon-offset-settings'] ) {
+			return;
+		}
+
+		// Security check:
+		// Early exit if the current user doesn't have the correct permissions.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		// Security check:
+		// Early exit if nonce check fails.
+		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'carbon-offset-settings' ) ) {
+			return;
+		}
+
+		/**
+		 * Build the value we're going to save.
+		 */
+		$save_value = [];
+		foreach ( $_POST as $key => $value ) {
+			if ( in_array( $key, [ '_wpnonce', '_wp_http_referer', 'carbon-offset-settings', 'submit' ], true ) ) {
+				continue;
+			}
+			if ( is_string( $value ) || is_numeric( $value ) ) {
+				$save_value[ sanitize_key( $key ) ] = sanitize_text_field( $value );
+			}
+		}
+
+		update_option( 'carbon_offset_settings', $save_value );
+	}
+
+	/**
+	 * Add generic settings.
+	 *
+	 * @access public
+	 * @since 1.0.0
+	 * @param array $values An array of saved values.
+	 * @return void
+	 */
+	public function settings_fields( $values ) {
+		$footprint = isset( $values['footprint'] ) ? $values['footprint'] : 0;
+		?>
+		<h2><?php esc_html_e( 'Carbon Footprint Settings', 'carbon-offset' ); ?></h2>
+
+		<label id="footprint-label">
+			<strong>
+				<?php esc_html_e( 'Carbon Footprint Per Page Load', 'carbon-offset' ); ?>
+			</strong>
+		</label>
+		<p id="footprint-desciption" class="description">
+			<?php _e( 'Enter the carbon footprint per-page-load for your website. You can get this value by testing your website on <a href="https://www.websitecarbon.com/" target="_blank" rel="nofollow">websitecarbon.com</a>.', 'carbon-offset' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+		</p>
+		<input
+			name="footprint"
+			type="number"
+			min="0"
+			max="100"
+			step="0.001"
+			aria-label="footprint-label"
+			aria-describedby="footprint-description"
+			value="<?php echo esc_attr( $footprint ); ?>"
+		>
+		<hr style="margin:2em 0;">
 		<?php
 	}
 }

@@ -21,7 +21,7 @@ class PaymentAPICloverly extends PaymentAPI {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	private $public_key = '6a531ee6ee6b9a60';
+	private $public_key;
 
 	/**
 	 * API response.
@@ -41,9 +41,26 @@ class PaymentAPICloverly extends PaymentAPI {
 	 */
 	public function init() {
 		parent::init();
+		$this->set_public_key();
 		add_action( 'wp_ajax_carbon_offset_cloverly', [ $this, 'ajax_action' ] );
-		add_filter( 'carbon_offset_admin_tabs', [ $this, 'admin_page_tab' ] );
-		add_action( 'carbon_offset_admin_tab_contents', [ $this, 'details_tab_contents' ], 5 );
+		add_action( 'carbon_offset_admin_page_pending_inside', [ $this, 'admin_page_pending_inside' ] );
+		add_action( 'carbon_offset_settings_page_fields', [ $this, 'settings_fields' ] );
+	}
+
+	/**
+	 * Set the public key in the object.
+	 *
+	 * @access protected
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function set_public_key() {
+
+		// Get the options.
+		$options = get_option( 'carbon_offset_settings', [] );
+
+		// Set the public key.
+		$this->public_key = ( isset( $options['cloverly-public-key'] ) ) ? $options['cloverly-public-key'] : '';
 	}
 
 	/**
@@ -76,11 +93,60 @@ class PaymentAPICloverly extends PaymentAPI {
 			]
 		);
 
-		if ( is_wp_error( $response ) ) {
-			$this->response = $response;
-			return false;
+		$response_code = wp_remote_retrieve_response_code( $response );
+		$is_error      = is_wp_error( $response ) || 205 < $response_code;
+
+		// If success, offset our carbon.
+		if ( ! $is_error ) {
+			$this->offset_weight( $weight );
 		}
-		return true;
+
+		return $response;
+	}
+
+	/**
+	 * Retrieve the purchase response as HTML to inject on the page.
+	 *
+	 * @access private
+	 * @since 1.0.0
+	 * @param float $weight The weight we want to offset in grams.
+	 * @return string
+	 */
+	private function the_transaction_html( $weight ) {
+		$result        = $this->the_transaction( $weight );
+		$response_code = wp_remote_retrieve_response_code( $result );
+		$is_error      = is_wp_error( $result ) || 205 < $response_code;
+
+		if ( $is_error ) {
+			ob_start();
+			?>
+			<div class="notice notice-error notice-alt">
+				<p><?php esc_html_e( 'There was an error with your transaction. You can see details of the request below to help you debug the issue.', 'carbon-offset' ); ?></p>
+				<details>
+					<code style="word-wrap:anywhere;">
+						<?php echo wp_json_encode( $result ); ?>
+					</code>
+				</details>
+			</div>
+			<?php
+			return ob_get_clean();
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $result ) );
+		ob_start();
+		?>
+		<div class="notice notice-success notice-alt">
+			<p>
+				<?php esc_html_e( 'Congratulations! You have successfully offset your website\'s carbon footprint. Thank you for helping save our planet.', 'carbon-offset' ); ?>
+			</p>
+			<p>
+				<a class="button" href="<?php echo esc_url( $body->pretty_url ); ?>" target="_blank" rel="nofollow">
+					<?php esc_html_e( 'View Receipt', 'carbon-offset' ); ?>
+				</a>
+			</p>
+		</div>
+		<?php
+		return ob_get_clean();
 	}
 
 	/**
@@ -202,7 +268,8 @@ class PaymentAPICloverly extends PaymentAPI {
 				break;
 
 			case 'purchase':
-				wp_die( wp_json_encode( $this->the_transaction( $weight ) ) );
+				// No need to escape this, it has already been properl yescaped in the method itself.
+				wp_die( $this->the_transaction_html( $weight ) ); // phpcs:ignore WordPress.Security.EscapeOutput
 				break;
 		}
 		wp_die();
@@ -232,18 +299,7 @@ class PaymentAPICloverly extends PaymentAPI {
 					};
 
 				jQuery.post( ajaxurl, data, function( response ) {
-					var responseData;
-					if ( 'purchase' === data.do ) {
-						if ( true === response ) {
-							// purchase successful.
-						} else {
-							// purchase failed.
-						}
-					}
-
-					if ( 'estimate' === data.do ) {
-						jQuery( '#action-result' ).html( response );
-					}
+					jQuery( '#action-result' ).html( response );
 				});
 			});
 		});
@@ -252,48 +308,70 @@ class PaymentAPICloverly extends PaymentAPI {
 	}
 
 	/**
-	 * Adds the admin-page tab.
+	 * Adds the admin-page tab contents on the details tab.
 	 *
 	 * @access public
 	 * @since 1.0.0
-	 * @param array $tabs Existing tabs.
-	 * @return array      Returls existing tabs + cloverly.
-	 */
-	public function admin_page_tab( $tabs ) {
-		$tabs[] = [
-			'title' => __( 'Cloverly Settings', 'carbon-offset' ),
-			'id'    => 'cloverly',
-		];
-		return $tabs;
-	}
-
-	/**
-	 * Adds the admin-page tab contents.
-	 *
-	 * @access public
-	 * @since 1.0.0
-	 * @param string $tab The current tab.
 	 * @return void
 	 */
-	public function details_tab_contents( $tab ) {
-		if ( 'details' !== $tab ) {
-			return;
-		}
-
-		add_action( 'admin_footer', [ $this, 'the_script' ] );
+	public function admin_page_pending_inside() {
 		?>
-		<div class="postbox">
-			<div class="inside">
-				<p>TODO: Allow selecting different units & values.</p>
+		<?php if ( $this->public_key ) : ?>
+			<?php add_action( 'admin_footer', [ $this, 'the_script' ] ); ?>
+			<div style="text-align:center;">
 				<label>
-					<p>How many Kg should we offset?</p>
-					<input id="carbon-footeprint-offset-kg" type="number" value="<?php echo (float) $this->get_pending_weight() / 1000; ?>"/>
+					<p><?php esc_html_e( 'How many Kg should we offset?', 'carbon-offset' ); ?></p>
+					<input id="carbon-footeprint-offset-kg" type="number" value="<?php echo (float) round( $this->get_pending_weight() ) / 1000; ?>"/>
 				</label>
 				<button class="button" id="carbon-footprint-cloverly-estimate"><?php esc_html_e( 'Estimate Cost', 'carbon-offset' ); ?></button>
 				<button class="button" id="carbon-footprint-cloverly-purchase"><?php esc_html_e( 'Purchase Offset', 'carbon-offset' ); ?></button>
-				<div id="action-result"></div>
 			</div>
-		</div>
+			<div id="action-result"></div>
+		<?php else : ?>
+			<div class="notice notice-warning notice-alt">
+				<p>
+					<?php
+					printf(
+						/* Translators: %s: URL. */
+						__( 'We could not find a saved key for the Cloverly API. Please visit the <a href="%s">Settings Page</a> and add your credentials.', 'carbon-offset' ), // phpcs:ignore WordPress.Security.EscapeOutput
+						esc_url( admin_url( 'admin.php?page=carbon-offset&tab=settings' ) )
+					);
+					?>
+				</p>
+			</div>
+		<?php endif; ?>
+		<?php
+	}
+
+	/**
+	 * Add generic settings.
+	 *
+	 * @access public
+	 * @since 1.0.0
+	 * @param array $values An array of saved values.
+	 * @return void
+	 */
+	public function settings_fields( $values ) {
+		$public_key = ( isset( $values['cloverly-public-key'] ) ) ? $values['cloverly-public-key'] : '';
+		?>
+		<h2><?php esc_html_e( 'Cloverly API Settings', 'carbon-offset' ); ?></h2>
+
+		<label id="cloverly-api-public-key">
+			<strong>
+				<?php esc_html_e( 'Cloverly API Public Key', 'carbon-offset' ); ?>
+			</strong>
+		</label>
+		<p id="cloverly-api-public-key-desciption" class="description">
+			<?php _e( 'After you create an account on the <a href="https://cloverly.com" target="_blank" rel="nofollow">Cloverly website</a>, you can visit your <a href="https://dashboard.cloverly.com/" target="_blank" rel="nofollow">Cloverly dashboard</a> to get your <code>public_key</code>.', 'carbon-offset' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+		</p>
+		<input
+			name="cloverly-public-key"
+			type="text"
+			aria-label="cloverly-api-public-key"
+			aria-describedby="cloverly-api-public-key-description"
+			value="<?php echo esc_attr( $public_key ); ?>"
+		>
+		<hr style="margin:2em 0;">
 		<?php
 	}
 }
