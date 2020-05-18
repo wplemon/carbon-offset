@@ -142,7 +142,10 @@ class AdminPage {
 					<div class="carbon-offset-pending" style="padding:2em;background:#fff;">
 						<h2 style="line-height:3;text-align:center;"><?php esc_html_e( 'Pending Carbon Footprint', 'carbon-offset' ); ?></h2>
 						<p class="description"><?php esc_html_e( 'Each visit and transaction on your website generates carbon emissions. In this section you can see the impact these have, and offset your site\'s emissions to the planet.', 'carbon-offset' ); ?></p>
-						<p style="font-size:4em;font-weight:200;text-align:center;"><?php echo (float) round( $carbon_data['carbon_pending'] ) / 1000; ?>kg</p>
+						<?php
+						?>
+						<p style="font-size:4em;font-weight:200;text-align:center;line-height:1;"><?php echo absint( $carbon_data['carbon_pending'] ) ?>kg</p>
+						<p style="font-size:1.5em;font-weight:200;text-align:center;">(<?php echo (float) $carbon_data['carbon_pending'] ?>grams)</p>
 						<?php do_action( 'carbon_offset_admin_page_pending_inside' ); ?>
 					</div>
 					<div class="carbon-offset-complete" style="padding:2em;background:#fff;">
@@ -272,11 +275,17 @@ class AdminPage {
 
 		<label id="footprint-label">
 			<strong>
-				<?php esc_html_e( 'Carbon Footprint Per Page Load', 'carbon-offset' ); ?>
+				<?php esc_html_e( 'Carbon Footprint Per Page Load (fallback value)', 'carbon-offset' ); ?>
 			</strong>
 		</label>
-		<p id="footprint-desciption" class="description">
-			<?php _e( 'Enter the carbon footprint per-page-load for your website. You can get this value by testing your website on <a href="https://www.websitecarbon.com/" target="_blank" rel="nofollow">websitecarbon.com</a>.', 'carbon-offset' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+		<p id="footprint-desciption" class="description" style="max-width: 50em;">
+			<?php
+			printf(
+				/* Translators: Link to websitecarbon.com */
+				esc_html__( 'We will automatically calculate the carbon footprint of your page loads. If you enter a value in this field, it will be used as a fallback value in case we can not detect the carbon-footprint of your page load. You can get this value by testing your website on %s.', 'carbon-offset' ),
+				'<a href="https://www.websitecarbon.com/" target="_blank" rel="nofollow">websitecarbon.com</a>'
+			);
+			?>
 		</p>
 		<input
 			name="footprint"

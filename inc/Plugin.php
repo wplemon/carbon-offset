@@ -40,6 +40,7 @@ class Plugin {
 	 * @return void
 	 */
 	public function include_files() {
+		require_once 'WebsiteCarbon.php';
 		require_once 'Data.php';
 		require_once 'Log.php';
 		require_once 'PaymentAPI.php';

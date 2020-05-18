@@ -48,9 +48,9 @@ class FooterScript {
 		);
 
 		echo '<script>';
-		echo 'var fusionPingRequest=new XMLHttpRequest();';
-		echo 'fusionPingRequest.open("GET","' . esc_url_raw( $url ) . '",true);';
-		echo 'fusionPingRequest.send();';
+		echo 'var carbonOffestPingRequest=new XMLHttpRequest();';
+		echo 'carbonOffestPingRequest.open("GET","' . esc_url_raw( $url ) . '",true);';
+		echo 'carbonOffestPingRequest.send();';
 		echo '</script>';
 	}
 }

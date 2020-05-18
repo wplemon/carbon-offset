@@ -77,8 +77,9 @@ class Log {
 		$data    = new Data();
 		$options = get_option( 'carbon_offset_settings', [] );
 
-		if ( isset( $options['footprint'] ) ) {
-			$data->add( (float) $options['footprint'] );
-		}
+		$websitecarbon = new \CarbonOffset\WebsiteCarbon();
+		$emissions     = $websitecarbon->get_carbon_data();
+
+		$data->add( (float) $emissions );
 	}
 }
