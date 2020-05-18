@@ -138,7 +138,7 @@ class AdminPage {
 		?>
 		<div class="postbox">
 			<div class="inside">
-				<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(50em, 1fr));grid-gap:1px;background:#aaa;">
+				<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(30em, 1fr));grid-gap:1px;background:#aaa;">
 					<div class="carbon-offset-pending" style="padding:2em;background:#fff;">
 						<h2 style="line-height:3;text-align:center;"><?php esc_html_e( 'Pending Carbon Footprint', 'carbon-offset' ); ?></h2>
 						<p class="description"><?php esc_html_e( 'Each visit and transaction on your website generates carbon emissions. In this section you can see the impact these have, and offset your site\'s emissions to the planet.', 'carbon-offset' ); ?></p>
