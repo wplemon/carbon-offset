@@ -316,19 +316,31 @@ class AdminPage {
 
 		$sponsors = [
 			[
-				'name' => 'WPLemon',
-				'url'  => 'https://wplemon.com',
-				'img'  => plugin_dir_url( CARBON_OFFSET_PLUGIN_FILE ) . 'assets/sponsors/wplemon.png',
+				'name'    => 'WPLemon',
+				'url'     => 'https://wplemon.com',
+				'img'     => plugin_dir_url( CARBON_OFFSET_PLUGIN_FILE ) . 'assets/sponsors/wplemon.png',
+				'classes' => '',
 			],
 		];
+
+		$github_sponsors = $this->get_sponsors();
+		foreach ( $github_sponsors as $gh_sponsor ) {
+			$sponsors[] = [
+				'name'    => $gh_sponsor->node->sponsor->name,
+				'url'     => $gh_sponsor->node->sponsor->websiteUrl ? $gh_sponsor->node->sponsor->websiteUrl : $gh_sponsor->node->sponsor->url,
+				'img'     => $gh_sponsor->node->sponsor->avatarUrl,
+				'classes' => 'round',
+			];
+		}
+
 		?>
 		<div id="carbon-offset-sponsors">
 			<hr style="margin: 5em 0;">
 			<p><?php esc_html_e( 'This plugin was made possible with the support of the following people & companies', 'carbon-offset' ); ?></p>
 			<div id="carbon-offset-sponsors-logos">
 				<?php foreach ( $sponsors as $sponsor ) : ?>
-					<a href="<?php esc_url( $sponsor['url'] ); ?>" target="_blank" rel="nofollow">
-						<img src="<?php echo esc_url( $sponsor['img'] ); ?>" style="width:auto;height:auto;max-width:100px;max-height:50px;">
+					<a href="<?php echo esc_url( $sponsor['url'] ); ?>" target="_blank" rel="nofollow" class="<?php echo esc_attr( $sponsor['classes'] ); ?>">
+						<img src="<?php echo esc_url( $sponsor['img'] ); ?>">
 					</a>
 				<?php endforeach; ?>
 			</div>
@@ -354,12 +366,63 @@ class AdminPage {
 			#carbon-offset-sponsors:focus-within {
 				opacity: 1;
 			}
-		</style>
 
-		<script>
-			// WIP.
-			var query = 'query($cursor:String){user(login:"aristath"){sponsorshipsAsMaintainer(first:100 after:$cursor){pageInfo {startCursor endCursor hasNextPage } edges { node { sponsor { avatarUrl login name }}}}}}';
-		</script>
+			#carbon-offset-sponsors-logos {
+				display: flex;
+				justify-content: center;
+			}
+
+			#carbon-offset-sponsors-logos > a {
+				padding: 1em;
+			}
+
+			#carbon-offset-sponsors-logos > a img {
+				width: auto;
+				height: 2em;
+			}
+
+			#carbon-offset-sponsors-logos > a.round img {
+				border-radius: 50%;
+			}
+		</style>
 		<?php
+	}
+
+	/**
+	 * Get sponsors.
+	 *
+	 * @access private
+	 * @since 1.0.1
+	 * @return array
+	 */
+	private function get_sponsors() {
+		$transient_name = md5( 'github sponsors aristath' );
+		$sponsors       = get_transient( $transient_name );
+		if ( ! $sponsors ) {
+			$query    = 'query($cursor:String){user(login:"aristath"){sponsorshipsAsMaintainer(first:100 after:$cursor){pageInfo {startCursor endCursor hasNextPage } edges { node { sponsor { avatarUrl login name url websiteUrl }}}}}}';
+			$response = wp_safe_remote_post(
+				'https://api.github.com/graphql',
+				[
+					'headers' => [
+						'Authorization' => 'bearer 09b1c8e6972ca96e338ec474b85058a8ee1c7327',
+						'Content-type'  => 'application/json',
+					],
+					'body'    => wp_json_encode( [ 'query' => $query ] ),
+					'timeout' => 20,
+				]
+			);
+
+			$sponsors = [];
+
+			if ( ! empty( wp_remote_retrieve_response_code( $response ) ) && ! is_wp_error( $response ) ) {
+				$body = json_decode( wp_remote_retrieve_body( $response ) );
+				if ( isset( $body->data ) && isset( $body->data->user ) && isset( $body->data->user->sponsorshipsAsMaintainer ) && isset( $body->data->user->sponsorshipsAsMaintainer->edges ) ) {
+					$sponsors = $body->data->user->sponsorshipsAsMaintainer->edges;
+				}
+			}
+
+			set_transient( $transient_name, $sponsors, DAY_IN_SECONDS );
+		}
+		return $sponsors;
 	}
 }
