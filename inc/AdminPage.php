@@ -144,7 +144,7 @@ class AdminPage {
 						<p class="description"><?php esc_html_e( 'Each visit and transaction on your website generates carbon emissions. In this section you can see the impact these have, and offset your site\'s emissions to the planet.', 'carbon-offset' ); ?></p>
 						<?php
 						?>
-						<p style="font-size:4em;font-weight:200;text-align:center;line-height:1;"><?php echo absint( $carbon_data['carbon_pending'] ) ?>kg</p>
+						<p style="font-size:4em;font-weight:200;text-align:center;line-height:1;"><?php echo esc_html( round( $carbon_data['carbon_pending'] / 1000, 1 ) ); ?>kg</p>
 						<p style="font-size:1.5em;font-weight:200;text-align:center;">(<?php echo (float) $carbon_data['carbon_pending'] ?>grams)</p>
 						<?php do_action( 'carbon_offset_admin_page_pending_inside' ); ?>
 					</div>
