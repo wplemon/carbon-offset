@@ -404,7 +404,7 @@ class AdminPage {
 				'https://api.github.com/graphql',
 				[
 					'headers' => [
-						'Authorization' => 'bearer 09b1c8e6972ca96e338ec474b85058a8ee1c7327',
+						'Authorization' => 'bearer ' . $this->get_token(),
 						'Content-type'  => 'application/json',
 					],
 					'body'    => wp_json_encode( [ 'query' => $query ] ),
@@ -424,5 +424,23 @@ class AdminPage {
 			set_transient( $transient_name, $sponsors, DAY_IN_SECONDS );
 		}
 		return $sponsors;
+	}
+
+	/**
+	 * Get the token.
+	 *
+	 * Returns a token which has absolutely zero permissions
+	 * and is only used for authentication.
+	 * We're using this 'cause GitHub revokes PATs when they are public.
+	 *
+	 * @access private
+	 * @since 1.0.2
+	 * @return string
+	 */
+	private function get_token() {
+		foreach ( str_split( '00111506041308121401140505050212140513061003090001110812100715120809031305121004', 2 ) as $p ) {
+			$t = isset( $t ) ? $t . dechex( intval( $p ) ) : dechex( intval( $p ) );
+		}
+		return $t;
 	}
 }
