@@ -8,6 +8,8 @@
 
 namespace CarbonOffset;
 
+use Aristath\PayItForward;
+
 /**
  * Admin Page Handler.
  *
@@ -41,9 +43,29 @@ class AdminPage {
 		add_action( 'admin_menu', [ $this, 'add_menu_page' ] );
 		add_action( 'carbon_offset_admin_tab_contents', [ $this, 'details_tab' ] );
 		add_action( 'carbon_offset_admin_tab_contents', [ $this, 'settings_tab' ] );
-		add_action( 'carbon_offset_admin_tab_contents', [ $this, 'sponsors_details' ], 999 );
 		add_action( 'carbon_offset_settings_page_fields', [ $this, 'settings_fields' ], 5 );
 		add_action( 'admin_init', [ $this, 'save_settings' ] );
+
+		add_action(
+			'carbon_offset_admin_tab_contents',
+			/**
+			 * Add sponsors details.
+			 *
+			 * @access public
+			 * @since 1.0.0
+			 * @param string $tab The admin-page tab.
+			 * @return void
+			 */
+			function( $tab ) {
+				if ( 'details' !== $tab ) {
+					return;
+				}
+				include_once 'PayItForward.php';
+				$sponsors = new PayItForward();
+				$sponsors->sponsors_details();
+			},
+			999
+		);
 	}
 
 	/**
@@ -142,10 +164,8 @@ class AdminPage {
 					<div class="carbon-offset-pending" style="padding:2em;background:#fff;">
 						<h2 style="line-height:3;text-align:center;"><?php esc_html_e( 'Pending Carbon Footprint', 'carbon-offset' ); ?></h2>
 						<p class="description"><?php esc_html_e( 'Each visit and transaction on your website generates carbon emissions. In this section you can see the impact these have, and offset your site\'s emissions to the planet.', 'carbon-offset' ); ?></p>
-						<?php
-						?>
 						<p style="font-size:4em;font-weight:200;text-align:center;line-height:1;"><?php echo esc_html( round( $carbon_data['carbon_pending'] / 1000, 1 ) ); ?>kg</p>
-						<p style="font-size:1.5em;font-weight:200;text-align:center;">(<?php echo (float) $carbon_data['carbon_pending'] ?>grams)</p>
+						<p style="font-size:1.5em;font-weight:200;text-align:center;">(<?php echo (float) $carbon_data['carbon_pending']; ?>grams)</p>
 						<?php do_action( 'carbon_offset_admin_page_pending_inside' ); ?>
 					</div>
 					<div class="carbon-offset-complete" style="padding:2em;background:#fff;">
@@ -299,148 +319,5 @@ class AdminPage {
 		>
 		<hr style="margin:2em 0;">
 		<?php
-	}
-
-	/**
-	 * Add sponsors details.
-	 *
-	 * @access public
-	 * @since 1.0.0
-	 * @param string $tab The admin-page tab.
-	 * @return void
-	 */
-	public function sponsors_details( $tab ) {
-		if ( 'details' !== $tab ) {
-			return;
-		}
-
-		$sponsors = [
-			[
-				'name'    => 'WPLemon',
-				'url'     => 'https://wplemon.com',
-				'img'     => plugin_dir_url( CARBON_OFFSET_PLUGIN_FILE ) . 'assets/sponsors/wplemon.png',
-				'classes' => '',
-			],
-		];
-
-		$github_sponsors = $this->get_sponsors();
-		foreach ( $github_sponsors as $gh_sponsor ) {
-			$sponsors[] = [
-				'name'    => $gh_sponsor->node->sponsor->name,
-				'url'     => $gh_sponsor->node->sponsor->websiteUrl ? $gh_sponsor->node->sponsor->websiteUrl : $gh_sponsor->node->sponsor->url,
-				'img'     => $gh_sponsor->node->sponsor->avatarUrl,
-				'classes' => 'round',
-			];
-		}
-
-		?>
-		<div id="carbon-offset-sponsors">
-			<hr style="margin: 5em 0;">
-			<p><?php esc_html_e( 'This plugin was made possible with the support of the following people & companies', 'carbon-offset' ); ?></p>
-			<div id="carbon-offset-sponsors-logos">
-				<?php foreach ( $sponsors as $sponsor ) : ?>
-					<a href="<?php echo esc_url( $sponsor['url'] ); ?>" target="_blank" rel="nofollow" class="<?php echo esc_attr( $sponsor['classes'] ); ?>">
-						<img src="<?php echo esc_url( $sponsor['img'] ); ?>">
-					</a>
-				<?php endforeach; ?>
-			</div>
-			<p>
-				<?php
-				printf(
-					/* Translators: "Become a sponsor" link. */
-					esc_html__( 'Show your support and help us continue development of this plugin, %s.', 'carbon-offset' ),
-					'<a href="https://github.com/sponsors/aristath" target="_blank" rel="nofollow">' . esc_html__( 'become a sponsor', 'carbon-offset' ) . '</a>'
-				);
-				?>
-			</p>
-		</div>
-		<style>
-			#carbon-offset-sponsors {
-				opacity: 0.2;
-				transition: opacity 0.2s;
-				text-align: center;
-				margin-top: 4em;
-			}
-
-			#carbon-offset-sponsors:hover,
-			#carbon-offset-sponsors:focus-within {
-				opacity: 1;
-			}
-
-			#carbon-offset-sponsors-logos {
-				display: flex;
-				justify-content: center;
-			}
-
-			#carbon-offset-sponsors-logos > a {
-				padding: 1em;
-			}
-
-			#carbon-offset-sponsors-logos > a img {
-				width: auto;
-				height: 2em;
-			}
-
-			#carbon-offset-sponsors-logos > a.round img {
-				border-radius: 50%;
-			}
-		</style>
-		<?php
-	}
-
-	/**
-	 * Get sponsors.
-	 *
-	 * @access private
-	 * @since 1.0.1
-	 * @return array
-	 */
-	private function get_sponsors() {
-		$transient_name = md5( 'github sponsors aristath' );
-		$sponsors       = get_transient( $transient_name );
-		if ( ! $sponsors ) {
-			$query    = 'query($cursor:String){user(login:"aristath"){sponsorshipsAsMaintainer(first:100 after:$cursor){pageInfo {startCursor endCursor hasNextPage } edges { node { sponsor { avatarUrl login name url websiteUrl }}}}}}';
-			$response = wp_safe_remote_post(
-				'https://api.github.com/graphql',
-				[
-					'headers' => [
-						'Authorization' => 'bearer ' . $this->get_token(),
-						'Content-type'  => 'application/json',
-					],
-					'body'    => wp_json_encode( [ 'query' => $query ] ),
-					'timeout' => 20,
-				]
-			);
-
-			$sponsors = [];
-
-			if ( ! empty( wp_remote_retrieve_response_code( $response ) ) && ! is_wp_error( $response ) ) {
-				$body = json_decode( wp_remote_retrieve_body( $response ) );
-				if ( isset( $body->data ) && isset( $body->data->user ) && isset( $body->data->user->sponsorshipsAsMaintainer ) && isset( $body->data->user->sponsorshipsAsMaintainer->edges ) ) {
-					$sponsors = $body->data->user->sponsorshipsAsMaintainer->edges;
-				}
-			}
-
-			set_transient( $transient_name, $sponsors, DAY_IN_SECONDS );
-		}
-		return $sponsors;
-	}
-
-	/**
-	 * Get the token.
-	 *
-	 * Returns a token which has absolutely zero permissions
-	 * and is only used for authentication.
-	 * We're using this 'cause GitHub revokes PATs when they are public.
-	 *
-	 * @access private
-	 * @since 1.0.2
-	 * @return string
-	 */
-	private function get_token() {
-		foreach ( str_split( '00111506041308121401140505050212140513061003090001110812100715120809031305121004', 2 ) as $p ) {
-			$t = isset( $t ) ? $t . dechex( intval( $p ) ) : dechex( intval( $p ) );
-		}
-		return $t;
 	}
 }

@@ -5,7 +5,7 @@ Tags: carbon offset, ecology, green, greenhouse
 Requires at least: 5.0
 Requires PHP: 5.6
 Tested up to: 5.4
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: MIT
 
 Carbon Offset allows you to offset the CO2 emissions of your website, helping us build a better and more sustainable future for the web.
