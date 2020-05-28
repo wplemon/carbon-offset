@@ -4,7 +4,7 @@
  * Description:   Offset your site's carbon footprint.
  * Author:        Ari Stathopoulos (@aristath)
  * Author URI:    https://aristath.github.io
- * Version:       1.0.3
+ * Version:       1.0.4
  * Text Domain:   carbon-offset
  * Requires WP:   5.0
  * Requires PHP:  5.6

@@ -60,7 +60,7 @@ class AdminPage {
 				if ( 'details' !== $tab ) {
 					return;
 				}
-				include_once 'PayItForward.php';
+				require_once __DIR__ . '/PayItForward.php';
 				$sponsors = new PayItForward();
 				$sponsors->sponsors_details();
 			},

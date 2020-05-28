@@ -40,13 +40,13 @@ class Plugin {
 	 * @return void
 	 */
 	public function include_files() {
-		require_once 'WebsiteCarbon.php';
-		require_once 'Data.php';
-		require_once 'Log.php';
-		require_once 'PaymentAPI.php';
-		require_once 'PaymentAPICloverly.php';
-		require_once 'AdminPage.php';
-		require_once 'FooterScript.php';
+		require_once __DIR__ . '/WebsiteCarbon.php';
+		require_once __DIR__ . '/Data.php';
+		require_once __DIR__ . '/Log.php';
+		require_once __DIR__ . '/PaymentAPI.php';
+		require_once __DIR__ . '/PaymentAPICloverly.php';
+		require_once __DIR__ . '/AdminPage.php';
+		require_once __DIR__ . '/FooterScript.php';
 	}
 
 	/**
