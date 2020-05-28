@@ -162,20 +162,46 @@ class AdminPage {
 			<div class="inside">
 				<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(30em, 1fr));grid-gap:1px;background:#aaa;">
 					<div class="carbon-offset-pending" style="padding:2em;background:#fff;">
-						<h2 style="line-height:3;text-align:center;"><?php esc_html_e( 'Pending Carbon Footprint', 'carbon-offset' ); ?></h2>
-						<p class="description"><?php esc_html_e( 'Each visit and transaction on your website generates carbon emissions. In this section you can see the impact these have, and offset your site\'s emissions to the planet.', 'carbon-offset' ); ?></p>
-						<p style="font-size:4em;font-weight:200;text-align:center;line-height:1;"><?php echo esc_html( round( $carbon_data['carbon_pending'] / 1000, 1 ) ); ?>kg</p>
+						<h2 style="line-height:3;text-align:center;">
+							<?php esc_html_e( 'Pending Carbon Footprint', 'carbon-offset' ); ?>
+						</h2>
+						<p class="description">
+							<?php esc_html_e( 'Each visit and transaction on your website generates carbon emissions. In this section you can see the impact these have, and offset your site\'s emissions to the planet.', 'carbon-offset' ); ?>
+						</p>
+						<?php
+						$styles = 'font-size:4em;font-weight:200;text-align:center;line-height:1;';
+						if ( 0 >= $carbon_data['carbon_pending'] ) {
+							$styles .= 'color:#46B450;';
+						} elseif ( 10000 <= $carbon_data['carbon_pending'] ) {
+							$styles .= 'color:#dc3232;';
+						}
+						?>
+						<p style="<?php echo esc_attr( $styles ); ?>">
+							<?php echo esc_html( round( $carbon_data['carbon_pending'] / 1000, 1 ) ); ?>kg
+						</p>
 						<p style="font-size:1.5em;font-weight:200;text-align:center;">(<?php echo (float) $carbon_data['carbon_pending']; ?>grams)</p>
 						<?php do_action( 'carbon_offset_admin_page_pending_inside' ); ?>
 					</div>
 					<div class="carbon-offset-complete" style="padding:2em;background:#fff;">
-						<h2 style="line-height:3;text-align:center;"><?php esc_html_e( 'Carbon Footprint already offset', 'carbon-offset' ); ?></h2>
-						<?php if ( 0 < $carbon_data['carbon_offset'] ) : ?>
-							<p class="description"><?php esc_html_e( 'In this section you can see the carbon you have already offset. Future purchases will add up to this number.', 'carbon-offset' ); ?></p>
-						<?php else : ?>
-							<p class="description"><?php esc_html_e( 'Once you purchase a carbon offset, the weight of that carbon will be shown here.', 'carbon-offset' ); ?></p>
-						<?php endif; ?>
-						<p style="font-size:4em;font-weight:200;text-align:center;"><?php echo (float) round( $carbon_data['carbon_offset'] ) / 1000; ?>kg</p>
+						<h2 style="line-height:3;text-align:center;">
+							<?php esc_html_e( 'Carbon Footprint already offset', 'carbon-offset' ); ?>
+						</h2>
+						<p class="description">
+							<?php if ( 0 < $carbon_data['carbon_offset'] ) : ?>
+								<?php esc_html_e( 'In this section you can see the carbon you have already offset. Future purchases will add up to this number.', 'carbon-offset' ); ?>
+							<?php else : ?>
+								<?php esc_html_e( 'Once you purchase a carbon offset, the weight of that carbon will be shown here.', 'carbon-offset' ); ?>
+							<?php endif; ?>
+						</p>
+						<?php
+						$styles = 'font-size:4em;font-weight:200;text-align:center;line-height:1;';
+						if ( $carbon_data['carbon_offset'] >= $carbon_data['carbon_pending'] ) {
+							$styles .= 'color:#46B450;';
+						}
+						?>
+						<p style="<?php echo esc_attr( $styles ); ?>">
+							<?php echo (float) round( $carbon_data['carbon_offset'] ) / 1000; ?>kg
+						</p>
 					</div>
 				</div>
 			</div>
@@ -295,7 +321,7 @@ class AdminPage {
 
 		<label id="footprint-label">
 			<strong>
-				<?php esc_html_e( 'Carbon Footprint Per Page Load (fallback value)', 'carbon-offset' ); ?>
+				<?php esc_html_e( 'Carbon Footprint Per Page Load (fallback value, in grams)', 'carbon-offset' ); ?>
 			</strong>
 		</label>
 		<p id="footprint-desciption" class="description" style="max-width: 50em;">

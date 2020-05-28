@@ -42,7 +42,7 @@ class WebsiteCarbon {
 		$cache = get_transient( 'carbon_offset_' . md5( $url ) );
 
 		// Cache was found, return it.
-		if ( false !== $cache ) {
+		if ( $cache ) {
 			return $cache;
 		}
 

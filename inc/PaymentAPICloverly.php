@@ -157,6 +157,9 @@ class PaymentAPICloverly extends PaymentAPI {
 				<a class="button" href="<?php echo esc_url( $body->pretty_url ); ?>" target="_blank" rel="nofollow">
 					<?php esc_html_e( 'View Receipt', 'carbon-offset' ); ?>
 				</a>
+				<button class="button" onclick="location.reload();">
+					<?php esc_html_e( 'Refresh Page', 'carbon-offset' ); ?>
+				</button>
 			</p>
 		</div>
 		<?php
@@ -345,7 +348,7 @@ class PaymentAPICloverly extends PaymentAPI {
 			<?php add_action( 'admin_footer', [ $this, 'the_script' ] ); ?>
 			<div style="text-align:center;">
 				<label>
-					<p><?php esc_html_e( 'How many Kg should we offset?', 'carbon-offset' ); ?></p>
+					<p><?php esc_html_e( 'How many Kg should we offset? (All transactions are one-time).', 'carbon-offset' ); ?></p>
 					<input id="carbon-footeprint-offset-kg" type="number" value="<?php echo (float) round( $this->get_pending_weight() ) / 1000; ?>"/>
 				</label>
 				<button class="button" id="carbon-footprint-cloverly-estimate"><?php esc_html_e( 'Estimate Cost', 'carbon-offset' ); ?></button>
