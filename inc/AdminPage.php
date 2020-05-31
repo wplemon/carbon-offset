@@ -41,6 +41,7 @@ class AdminPage {
 		$this->data = new Data();
 
 		add_action( 'admin_menu', [ $this, 'add_menu_page' ] );
+		add_action( 'network_admin_menu', [ $this, 'add_menu_page' ] );
 		add_action( 'carbon_offset_admin_tab_contents', [ $this, 'details_tab' ] );
 		add_action( 'carbon_offset_admin_tab_contents', [ $this, 'settings_tab' ] );
 		add_action( 'carbon_offset_settings_page_fields', [ $this, 'settings_fields' ], 5 );
@@ -157,7 +158,27 @@ class AdminPage {
 		}
 
 		$carbon_data = $this->data->get();
+
+		if ( is_network_admin() ) {
+			$carbon_data           = [
+				'carbon_pending' => 0,
+				'carbon_offset'  => 0,
+			];
+			$multisite_carbon_data = [];
+			$sites                 = get_sites();
+			foreach ( $sites as $site ) {
+				$data                                    = $this->data->get( $site->blog_id );
+				$carbon_data['carbon_pending']          += $data['carbon_pending'];
+				$carbon_data['carbon_offset']           += $data['carbon_offset'];
+				$multisite_carbon_data[ $site->blog_id ] = $data;
+			}
+		}
 		?>
+		<?php if ( is_network_admin() ) : ?>
+			<p class="description">
+				<?php esc_html_e( 'This page shows carbon footprint across all sites on your network.', 'carbon-offset' ); ?>
+			</p>
+		<?php endif; ?>
 		<div class="postbox">
 			<div class="inside">
 				<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(30em, 1fr));grid-gap:1px;background:#aaa;">

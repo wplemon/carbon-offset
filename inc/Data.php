@@ -32,9 +32,14 @@ class Data {
 	 *
 	 * @since 1.0.0
 	 *
+	 * @param int $blog_id The blog-ID on a multisite installation.
+	 *
 	 * @return array
 	 */
-	public function get() {
+	public function get( $blog_id = 0 ) {
+		if ( $blog_id ) {
+			switch_to_blog( $blog_id );
+		}
 		$value = (array) get_option(
 			$this->option_name,
 			[
@@ -42,6 +47,9 @@ class Data {
 				'carbon_offset'  => 0,
 			]
 		);
+		if ( $blog_id ) {
+			restore_current_blog();
+		}
 		return $value;
 	}
 
@@ -76,11 +84,18 @@ class Data {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $value The value we want to save.
+	 * @param array $value   The value we want to save.
+	 * @param int   $blog_id The blog-ID in a multisite installation.
 	 *
 	 * @return void
 	 */
-	public function save( $value ) {
+	public function save( $value, $blog_id = 0 ) {
+		if ( $blog_id ) {
+			switch_to_blog( $blog_id );
+		}
 		update_option( $this->option_name, $value );
+		if ( $blog_id ) {
+			restore_current_blog();
+		}
 	}
 }
