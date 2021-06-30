@@ -4,7 +4,7 @@ Donate link: https://github.com/sponsors/aristath/
 Tags: carbon offset, ecology, green, greenhouse
 Requires at least: 5.0
 Requires PHP: 5.6
-Tested up to: 5.4
+Tested up to: 5.8
 Stable tag: 1.0.6
 License: MIT
 
