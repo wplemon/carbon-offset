@@ -8,8 +8,6 @@
 
 namespace CarbonOffset;
 
-use Aristath\PayItForward;
-
 /**
  * Admin Page Handler.
  *
@@ -46,27 +44,6 @@ class AdminPage {
 		add_action( 'carbon_offset_admin_tab_contents', [ $this, 'settings_tab' ] );
 		add_action( 'carbon_offset_settings_page_fields', [ $this, 'settings_fields' ], 5 );
 		add_action( 'admin_init', [ $this, 'save_settings' ] );
-
-		add_action(
-			'carbon_offset_admin_tab_contents',
-			/**
-			 * Add sponsors details.
-			 *
-			 * @access public
-			 * @since 1.0.0
-			 * @param string $tab The admin-page tab.
-			 * @return void
-			 */
-			function( $tab ) {
-				if ( 'details' !== $tab ) {
-					return;
-				}
-				require_once __DIR__ . '/PayItForward.php';
-				$sponsors = new PayItForward();
-				$sponsors->sponsors_details();
-			},
-			999
-		);
 	}
 
 	/**
